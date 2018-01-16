@@ -100,7 +100,7 @@ const loginUsers = function(req,res){
           jwt.sign({
             id : data_User.id,
             username : data_User.username
-          }, secret_key, function(err, token){
+          }, 'hacktiv', function(err, token){
             if(!err){
               console.log('this token >>', token)
               res.status(201).json({

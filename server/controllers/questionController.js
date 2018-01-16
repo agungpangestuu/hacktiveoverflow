@@ -85,6 +85,9 @@ const destroyQuestions = function(req,res){
     res.status(500).send(`[-] err delete by id Questions`)
   })
 }
+const voteQuestion = function(req,res){
+
+}
 
 module.exports = {
   createQuestion,

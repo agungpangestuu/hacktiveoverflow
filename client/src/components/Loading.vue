@@ -67,7 +67,7 @@ export default {
             console.log(data)
             localStorage.setItem('token', data.token)
             // this.getLogin()
-            this.$router.push('/question')
+            this.$router.push('/')
           })
           .catch(err => {
             this.$emit('err', true)
