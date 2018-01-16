@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import jwt from 'jwt-decode'
 
 Vue.use(Vuex)
 
@@ -25,7 +26,7 @@ const state = {
     question_content: ''
   },
   data: [],
-  dataUser: []
+  dataUser: {}
 }
 
 const mutations = {
@@ -63,15 +64,12 @@ const actions = {
     }
     commit('clearSign', data)
   },
-  setDataUser ({commit}, payload) {
-    commit('setDataUser', payload)
-  },
   signIn ({commit}) {
     return new Promise((resolve, reject) => {
       http.post('/api/users/login', state.login)
         .then(({data}) => {
           resolve(data)
-          actions.setDataUser(data)
+          actions.decode()
           commit('isLogin', true)
         })
         .catch(err => {
@@ -162,6 +160,10 @@ const actions = {
   removeAnswer ({commit}, id) {
     http.delete(`/api/answer/${id}`)
       .then(data => console.log('sukses'))
+  },
+  decode ({commit}) {
+    var decoded = jwt(localStorage.getItem('token'))
+    commit('setDataUser', decoded)
   }
 }
 

@@ -55,7 +55,6 @@
       <q-side-link item to="/question">
         <q-item-side icon="account circle" />
         <q-item-main label="Question" sublabel="Learn more about it" />
-        <q-item-side right icon="thumb_up" />
       </q-side-link>
       <q-side-link item to="/create-question" v-if="isLogin">
         <q-item-side icon="view_array" />
@@ -130,6 +129,9 @@ export default {
       },
       search: ''
     }
+  },
+  updated () {
+    this.checkLogin()
   },
   computed: {
     ...mapState([

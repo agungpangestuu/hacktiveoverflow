@@ -8,7 +8,8 @@
               {{data_Question.title}}
             </div>
             <div class="col-6">
-              <q-item-side right icon="thumb_up"></q-item-side>
+              <q-item-side right icon="thumb_up" v-if="!vote" @click="vote = true"></q-item-side>
+              <q-item-side right icon="thumb_up" color="blue" v-if="vote" @click="vote = false"></q-item-side>
             </div>
           </div>
 
@@ -25,7 +26,7 @@
 
         </q-card-main>
         <q-card-actions>
-          <q-btn flat @click="$refs.updateQuest.open()">Update</q-btn>
+          <q-btn flat @click="$refs.updateQuest.open()" v-if="dataUser.id === data_Question.author._id">Update</q-btn>
           <q-modal ref="updateQuest" :content-css="{minWidth: '80vw', minHeight: '80vh'}">
             <q-modal-layout>
               <q-toolbar slot="header">
@@ -52,11 +53,11 @@
                 >
                 <textarea v-model="data_Question.question_content" rows="8" cols="100"></textarea>
                 </q-field>
-                <q-btn @click="update">Update</q-btn>
+                <q-btn @click="update" >Update</q-btn>
               </div>
             </q-modal-layout>
           </q-modal>
-          <q-btn flat @click="remove">Delete</q-btn>
+          <q-btn flat @click="remove" v-if="dataUser.id === data_Question.author._id">Delete</q-btn>
         </q-card-actions>
       </q-card>
       <br>
@@ -93,7 +94,7 @@ import {
   QInput,
   QIcon
 } from 'quasar'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import CreateAnswer from './CreateAnswer'
 import AnswerQuest from './AnswerQuest'
 export default {
@@ -126,10 +127,14 @@ export default {
       answer: [],
       error: true,
       error2: false,
-      loading: true
+      loading: true,
+      vote: false
     }
   },
   computed: {
+    ...mapState([
+      'dataUser'
+    ]),
     computedClasses () {
       let classes = []
       if (this.misc.includes('bordered')) {
@@ -151,21 +156,16 @@ export default {
         classes.push(this.gutter)
       }
       return classes
-    },
-    answer () {
-      let id = this.$route.params.id
-      this.getAnswerByQuestion(id)
-        .then(data => {
-          this.answer = data
-        })
     }
+
   },
   methods: {
     ...mapActions([
       'getQuestById',
       'getAnswerByQuestion',
       'removeQuest',
-      'updateQuest'
+      'updateQuest',
+      'decode'
     ]),
     remove () {
       this.removeQuest(this.$route.params.id)
@@ -189,6 +189,8 @@ export default {
       .then(data => {
         this.answer = data
       })
+    this.decode()
+    console.log('sasa',this.dataUser)
   }
 }
 </script>

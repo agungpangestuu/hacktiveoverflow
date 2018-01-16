@@ -13,9 +13,9 @@
               <q-item-tile stamp>{{d.question_content}}</q-item-tile>
             </q-item-main>
             <q-item-side right>
-              <q-item-tile stamp>10 min ago</q-item-tile>
-              <span class="text-amber">
-                <q-item-tile icon="star" v-for="n in 5" :key="n" />
+              <span class="text-blue">
+                <q-item-tile icon="thumb_up"/>
+                <q-item-tile stamp>10 like</q-item-tile>
               </span>
             </q-item-side>
           </q-item>

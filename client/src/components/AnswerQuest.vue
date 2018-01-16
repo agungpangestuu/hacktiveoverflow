@@ -61,14 +61,14 @@ export default {
     }
   },
   computed: {
-    answers () {
-      let id = this.$route.params.id
-      this.getAnswerByQuestion(id)
-        .then(data => {
-          this.answers = data
-          console.log('ini data', this.answer)
-        })
-    }
+    // answers () {
+    //   let id = this.$route.params.id
+    //   this.getAnswerByQuestion(id)
+    //     .then(data => {
+    //       this.answers = data
+    //       console.log('ini data', this.answer)
+    //     })
+    // }
   },
   methods: {
     ...mapActions([
