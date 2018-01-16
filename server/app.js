@@ -7,6 +7,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const mongoose = require('mongoose')
+mongoose.Promise = global.Promise
 mongoose.connect(process.env.URL, {useMongoClient: true})
 
 const index = require('./routes/index');

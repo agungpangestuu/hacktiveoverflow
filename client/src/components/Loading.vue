@@ -1,16 +1,12 @@
 <template>
   <div class="layout-padding row justify-end">
     <div style="">
-
       <q-btn color="primary" @click="showTextLoading()">
         Sign In
       </q-btn>
-
-
-
-          <q-inner-loading :visible="visible">
-            <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
-          </q-inner-loading>
+      <q-inner-loading :visible="visible">
+          <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
+      </q-inner-loading>
     </div>
   </div>
 </template>
@@ -23,8 +19,7 @@ import {
   QCard,
   QCardTitle,
   QCardMain,
-  QSpinnerGears,
-  LocalStorage
+  QSpinnerGears
 } from 'quasar'
 import { mapState, mapActions } from 'vuex'
 // Don't forget to also load animations
@@ -49,12 +44,13 @@ export default {
   },
   computed: {
     ...mapState([
-      'isLogin'
+      'isLogin',
+      'login'
     ])
   },
   methods: {
     ...mapActions([
-      'getLogin'
+      'signIn'
     ]),
     showTextLoading () {
       this.show()
@@ -66,18 +62,12 @@ export default {
         this.visible = false
         this.showSimulatedReturnData = true
         // console.log(this.data)
-        this.$http.post('/api/user/signin', this.data)
-          .then(({data}) => {
+        this.signIn()
+          .then(data => {
             console.log(data)
-            LocalStorage.set('token', data.token)
-            this.getLogin()
-            this.$router.replace('/')
-            if (LocalStorage.has('token')) {
-              this.$emit('status', true)
-            }
-            else {
-              this.$emit('status', false)
-            }
+            localStorage.setItem('token', data.token)
+            // this.getLogin()
+            this.$router.push('/question')
           })
           .catch(err => {
             this.$emit('err', true)

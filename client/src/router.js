@@ -37,7 +37,21 @@ export default new VueRouter({
       component: load('Hello'),
       children: [
         {
-          path: 'signup',
+          path: '/question',
+          component: load('Quetion')
+        },
+        {
+          path: '/detail-quest/:id',
+          name: 'DetailQuest',
+          component: load('DetailQuest')
+        },
+        {
+          path: '/create-question',
+          name: 'Create',
+          component: load('CreateQuestion')
+        },
+        {
+          path: '/signup',
           component: load('FormSignup')
         }
       ]

@@ -1,9 +1,6 @@
 <template>
   <div class="layout-padding docs-input row justify-center">
     <div style="width: 500px; max-width: 90vw;">
-      <!-- <q-toggle v-model="error2" color="negative" label="Toggle error state" /> -->
-      <big>Sign Up</big>
-      <br><br>
       <q-field
         icon="description"
         :count="100"
@@ -11,7 +8,7 @@
         helper="What's your title postblog name?"
         error-label="Hey, we got an error"
       >
-        <q-input v-model="signUp.fullname" float-label="Fullname" />
+        <q-input v-model="formCreate.title" float-label="question title" />
       </q-field>
 
       <q-field
@@ -20,28 +17,12 @@
         :error="error2"
         error-label="We got an error"
       >
-        <q-input v-model="signUp.username" float-label="Username" />
+        <q-input v-model="formCreate.question_content" float-label="Question" />
       </q-field>
       <!-- <br> -->
-      <q-field
-        icon="link"
-        helper="input your link image only link image"
-        :error="error2"
-        error-label="We got an error"
-      >
-        <q-input v-model="signUp.password" float-label="Password" />
-      </q-field>
-      <q-field
-        icon="link"
-        helper="input your link image only link image"
-        :error="error2"
-        error-label="We got an error"
-      >
-        <q-input v-model="signUp.email" float-label="Email" />
-      </q-field>
 
-      <q-btn @click="signBtn()">
-        Sign Up
+      <q-btn @click="createBtn()">
+        create
       </q-btn>
       <!-- <LoadingPost :data="{title, description, link}" @err="getEmit" @status="getEmit"></LoadingPost> -->
 
@@ -73,12 +54,6 @@ export default {
   },
   data () {
     return {
-      userSignup: {
-        fullname: '',
-        email: '',
-        password: '',
-        username: ''
-      },
       error: true,
       error2: false,
       loading: true
@@ -86,23 +61,19 @@ export default {
   },
   computed: {
     ...mapState([
-      'signUp'
+      'formCreate'
     ])
   },
   methods: {
     ...mapActions([
       'SignUp',
-      'clearSign'
+      'clearSign',
+      'askCreate'
     ]),
-    signBtn () {
-      this.SignUp()
-        .then(data => {
-          this.clearSign()
+    createBtn () {
+      this.askCreate()
+        .then(() => {
           this.$router.push('/')
-        })
-        .catch(err => {
-          console.log(err)
-          this.error2 = this.error
         })
     }
   }

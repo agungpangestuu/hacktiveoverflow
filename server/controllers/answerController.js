@@ -4,14 +4,14 @@ const Answer = require('../models/answerModel')
 const createAnswer = function(req,res){
   console.log(req.body)
   let newAnswer = Answer({
-    question: req.body.question_id,
+    question: req.body.question,
     answer_content: req.body.answer_content,
-    by: req.header.decoded.id
+    by: req.decoded.id
   })
   newAnswer.save().then(function(newAnswer){
     res.status(201).send(newAnswer)
   }).catch(function(err){
-    res.status(500).send(err.errors.title.message)
+    res.status(500).send(err)
     console.log(err, '[-] create Answer')
   })
 }
@@ -75,7 +75,7 @@ const answersByQuestion = function(req,res){
     _id : ObjectId(req.params.id)
   }
   Answer.find({ question : question_id }).populate('by').populate('question').then(function(data_answerQuestions){
-    // console.log(data_Questions)
+    console.log(data_answerQuestions)
     res.status(200).send(data_answerQuestions)
   }).catch(function(err){
     res.status(500).send(`[-] err find by id Answer by question`)

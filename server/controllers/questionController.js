@@ -5,11 +5,11 @@ const createQuestion = function(req,res){
   let newQuestion = Questions({
     title: req.body.title,
     question_content: req.body.question_content,
-    author: req.header.decoded.id
+    author: req.decoded.id
   })
   // console.log(newQuestion)
   newQuestion.save().then(function(newQuestion){
-    console.log('create quest controller', newQuestion)
+    // console.log('create quest controller', newQuestion)
     res.status(201).send(newQuestion)
   }).catch(function(err){
     res.status(500).send(err.errors.title.message)
@@ -20,7 +20,8 @@ const createQuestion = function(req,res){
 const findAllQuestion = function(req,res){
   Questions.find().populate('author')
   .then(function(data_Questions){
-    res.status(200).send(data_Questions)
+    // console.log(data_Questions)
+    res.status(200).json({data: data_Questions})
   }).catch(function(err){
     console.log(err, '[-] findAll data Questions')
     res.status(500).send(err)
@@ -33,7 +34,7 @@ const questionsByid = function(req,res){
   }
   Questions.findById(id).populate('author')
   .then(function(data_Questions){
-    res.status(200).send(data_Questions)
+    res.status(200).json({data: data_Questions})
   }).catch(function(err){
     res.status(500).send(`[-] err find by id Questions`)
   })

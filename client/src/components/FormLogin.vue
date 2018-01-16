@@ -10,7 +10,7 @@
         helper="What's your account name?"
         error-label="Hey, we got an error"
       >
-        <q-input v-model="email" type="email"/>
+        <q-input v-model="login.username" type="email"/>
       </q-field>
 
       <q-field
@@ -20,11 +20,11 @@
         helper="Some helper"
         error-label="Wait, wait. Error!"
       >
-        <q-input v-model="password" type="password"/>
+        <q-input v-model="login.password" type="password"/>
       </q-field>
 
 
-      <Loading :data="{email, password}" @err="getEmit" @status="getEmit"></Loading>
+      <Loading @err="getEmit"></Loading>
 
     </div>
   </div>
@@ -41,7 +41,7 @@ import {
   QBtn
 } from 'quasar'
 import Loading from './Loading'
-
+import { mapState } from 'vuex'
 export default {
   components: {
     QInput,
@@ -55,12 +55,15 @@ export default {
   },
   data () {
     return {
-      email: '',
-      password: '',
       error: true,
       error2: false,
       loading: true
     }
+  },
+  computed: {
+    ...mapState([
+      'login'
+    ])
   },
   methods: {
     simulateProgress (event, done) {

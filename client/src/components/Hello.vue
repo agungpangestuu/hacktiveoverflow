@@ -11,14 +11,14 @@
         <q-icon name="menu" />
       </q-btn>
       <q-toolbar-title>
-        Quasar Layout
+        Hacktiv Overflow
         <span slot="subtitle">Empowering your app</span>
       </q-toolbar-title>
       <!-- <q-btn class="within-iframe-hide" flat @click="$router.replace('/showcase')" style="margin-right: 15px">
         <q-icon name="keyboard_arrow_left" />
         Go back
       </q-btn> -->
-      <q-btn class="within-iframe-hide" flat @click="$refs.layoutModal.open()" style="margin-right: 15px">
+      <q-btn class="within-iframe-hide" flat @click="$refs.layoutModal.open()" style="margin-right: 15px" v-if="!isLogin">
         <q-icon name="account_circle" color="primary" />
         Login
       </q-btn>
@@ -37,34 +37,35 @@
           </div>
         </q-modal-layout>
       </q-modal>
+      <q-btn class="within-iframe-hide" flat @click="logout" style="margin-right: 15px" v-if="isLogin">
+        <q-icon name="account_circle" color="primary" />
+        Logout
+      </q-btn>
     </q-toolbar>
 
-    <q-tabs slot="navigation" v-if="!layoutStore.hideTabs" inverted>
+    <!-- <q-tabs slot="navigation" v-if="!layoutStore.hideTabs" inverted>
       <q-route-tab slot="title" icon="play_circle_outline" to="/showcase/layout/play-with-layout" replace label="Play with Layout" />
       <q-route-tab slot="title" icon="view_array" to="/showcase/layout/drawer-panels" replace label="Drawer Panels" />
       <q-route-tab slot="title" icon="pin_drop" to="/showcase/layout/fixed-positioning" replace label="Fixed Positioning" />
       <q-route-tab slot="title" icon="play_for_work" to="/showcase/layout/floating-action-button" replace label="Floating Action Button" />
-    </q-tabs>
+    </q-tabs> -->
 
     <q-scroll-area slot="left" style="width: 100%; height: 100%">
-      <q-list-header>Left Panel</q-list-header>
-      <q-side-link item to="/showcase/layout/play-with-layout">
+      <q-list-header>Menu</q-list-header>
+      <q-side-link item to="/question">
         <q-item-side icon="account circle" />
-        <q-item-main label="Play with Layout" sublabel="Learn more about it" />
+        <q-item-main label="Question" sublabel="Learn more about it" />
         <q-item-side right icon="thumb_up" />
       </q-side-link>
-      <q-side-link item to="/showcase/layout/drawer-panels">
+      <q-side-link item to="/create-question" v-if="isLogin">
         <q-item-side icon="view_array" />
-        <q-item-main label="Drawer Panels" sublabel="Layout left/right sides" />
+        <q-item-main label="Create Question" sublabel="create your question to audients" />
       </q-side-link>
-      <q-side-link item to="/showcase/layout/fixed-positioning">
+      <q-side-link item to="/profile">
         <q-item-side icon="pin_drop" />
-        <q-item-main label="Fixed Positioning" sublabel="...on a Layout" />
+        <q-item-main label="profile" sublabel="...on a Layout" />
       </q-side-link>
-      <q-side-link item to="/showcase/layout/floating-action-button">
-        <q-item-side icon="play_for_work" />
-        <q-item-main label="Floating Action Button" sublabel="For Page actions" />
-      </q-side-link>
+
     </q-scroll-area>
 
     <router-view />
@@ -96,6 +97,7 @@ import {
   QModalLayout
 } from 'quasar'
 import FormLogin from './FormLogin'
+import { mapState, mapActions } from 'vuex'
 export default {
   components: {
     FormLogin,
@@ -129,8 +131,33 @@ export default {
       search: ''
     }
   },
+  computed: {
+    ...mapState([
+      'isLogin',
+      'data'
+    ])
+  },
+  methods: {
+    ...mapActions([
+      'checkLogin',
+      'logout',
+      'getAllQuestion'
+    ])
+  },
+  watch: {
+    isLogin: function () {
+      this.checkLogin()
+    }
+  },
   mounted () {
     this.$refs.layout.hideLeft()
+  },
+  created () {
+    this.getAllQuestion()
+    this.checkLogin()
+    if (!this.isLogin) {
+      this.$router.push('/question')
+    }
   }
 }
 </script>
