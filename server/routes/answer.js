@@ -7,9 +7,9 @@ const Answer = require('../controllers/answerController')
 router.post('/', Login.isLogin, Answer.createAnswer)
 router.get('/', Answer.findAllAnswer)
 router.get('/:id', Answer.answerByid)
-router.delete('/:id', Answer.destroyAnswer)
+router.delete('/:id',Login.isLogin, Answer.destroyAnswer)
 router.get('/questions/:id', Answer.answersByQuestion)
-router.put('/:id', Answer.updateAnswer)
+router.put('/:id', Login.isLogin, Answer.updateAnswer)
 router.put('/vote/:id',  Login.isLogin, Answer.voteAnswer)
 
 module.exports = router

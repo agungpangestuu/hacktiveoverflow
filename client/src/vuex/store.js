@@ -6,7 +6,8 @@ import jwt from 'jwt-decode'
 Vue.use(Vuex)
 
 const http = axios.create({
-  baseURL: 'http://35.186.155.3:3005'
+  baseURL: 'http://35.186.155.3:3005',
+  headers: {'token': localStorage.getItem('token')}
 })
 
 const state = {
@@ -132,7 +133,7 @@ const actions = {
     commit('isLogin', false)
   },
   askCreate () {
-    http.post('/api/question', state.formCreate, {headers: {'token': localStorage.getItem('token')}})
+    http.post('/api/question', state.formCreate)
       .then(({data}) => {
         state.data.push(data.data)
       })
@@ -158,7 +159,7 @@ const actions = {
       .catch(err => console.log(err))
   },
   removeQuest ({commit}, id) {
-    http.delete(`/api/question/${id}`, {headers: {'token': localStorage.getItem('token')}})
+    http.delete(`/api/question/${id}`)
       .then(data => {
         console.log('sukses')
       })
@@ -172,7 +173,7 @@ const actions = {
       question_content: data.question_content
     }
     return new Promise((resolve, reject) => {
-      http.put(`/api/question/${data._id}`, quest, {headers: {'token': localStorage.getItem('token')}})
+      http.put(`/api/question/${data._id}`, quest)
         .then(data => {
           console.log('sukses')
           resolve(data)
@@ -185,7 +186,7 @@ const actions = {
   },
   postAnswer ({commit}, dataAnswer) {
     return new Promise((resolve, reject) => {
-      http.post(`/api/answer/`, dataAnswer, {headers: {'token': localStorage.getItem('token')}})
+      http.post(`/api/answer/`, dataAnswer)
         .then(({data}) => {
           // console.log(data)
           // commit('setAnswerUser', dataAnswer)
@@ -228,7 +229,7 @@ const actions = {
     else {
       commit('setDataVote', state.dataUser.id)
     }
-    http.put(`/api/question/vote/${payload}`, {}, {headers: {'token': localStorage.getItem('token')}})
+    http.put(`/api/question/vote/${payload}`, {})
       .then(result => {
         console.log('sukses update')
         // commit('setDataQuestion', result.data)
@@ -245,7 +246,7 @@ const actions = {
     else {
       commit('pushVoteAnswer', payload)
     }
-    http.put(`/api/answer/vote/${payload}`, {}, {headers: {'token': localStorage.getItem('token')}})
+    http.put(`/api/answer/vote/${payload}`, {})
       .then(data => {
         console.log('sukses like')
       })

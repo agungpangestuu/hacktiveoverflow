@@ -6,10 +6,10 @@ const Question = require('../controllers/questionController')
 
 router.post('/', Login.isLogin, Question.createQuestion)
 router.get('/', Question.findAllQuestion)
-router.get('/:id', Question.questionsByid)
+router.get('/:id', Login.isLogin, Question.questionsByid)
 router.get('/author/:id', Question.questionsByAuthorid)
-router.put('/:id', Question.updateQuestion)
-router.delete('/:id', Question.destroyQuestions)
+router.put('/:id',Login.isLogin, Question.updateQuestion)
+router.delete('/:id', Login.isLogin,Question.destroyQuestions)
 router.put('/vote/:id', Login.isLogin, Question.voteQuestion)
 
 module.exports = router
