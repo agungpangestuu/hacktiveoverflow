@@ -6,7 +6,7 @@ import jwt from 'jwt-decode'
 Vue.use(Vuex)
 
 const http = axios.create({
-  baseURL: 'http://localhost:3003'
+  baseURL: 'http://35.186.155.3:3005'
 })
 
 const state = {
@@ -26,7 +26,10 @@ const state = {
     question_content: ''
   },
   data: [],
-  dataUser: {}
+  dataUser: {},
+  data_Answer: [],
+  answerUser: [],
+  data_Question: {}
 }
 
 const mutations = {
@@ -41,12 +44,48 @@ const mutations = {
   },
   setDataUser (state, payload) {
     state.dataUser = payload
+  },
+  setDataAnswer (state, payload) {
+    state.data_Answer = payload
+  },
+  setAnswerUser (state, payload) {
+    state.data_Answer.push(payload)
+  },
+  setVote (state, payload) {
+    state.data_Question.vote.push(payload)
+  },
+  setDataQuestion (state, payload) {
+    state.data_Question = payload
+  },
+  setDataVote (state, payload) {
+    state.data_Question.vote.forEach((data, i) => {
+      if (data === state.dataUser.id) {
+        return state.data_Question.vote.splice(i, 1)
+      }
+    })
+  },
+  pushVoteAnswer (state, payload) {
+    for (let vote in state.data_Answer) {
+      if (vote.hasOwnProperty(vote) && vote._id === payload) {
+        vote.vote.push(state.dataUser.id)
+      }
+    }
+  },
+  pullVoteAnswer (state, payload) {
+    for (let vote in state.data_Answer) {
+      if (vote.hasOwnProperty(vote) && vote._id === payload) {
+        vote.vote.forEach((data, i) => {
+          if (data === state.dataUser.id) {
+            return vote.vote.splice(i, 1)
+          }
+        })
+      }
+    }
   }
 }
 
 const actions = {
   SignUp () {
-    console.log()
     return new Promise((resolve, reject) => {
       http.post('/api/users', state.signUp)
         .then(({data}) => {
@@ -70,10 +109,12 @@ const actions = {
         .then(({data}) => {
           resolve(data)
           actions.decode()
+          state.login.username = ''
+          state.login.password = ''
           commit('isLogin', true)
         })
         .catch(err => {
-          console.log(err)
+          console.error(err)
           reject(err)
         })
     })
@@ -95,31 +136,34 @@ const actions = {
       .then(({data}) => {
         state.data.push(data.data)
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        alert('you Must Login')
+        console.log(err)
+      })
   },
   getAllQuestion ({commit}) {
     http.get('/api/question')
       .then(({data}) => {
-        // console.log(data.data)
         commit('setData', data.data)
       })
       .catch(err => console.log(err))
   },
   getQuestById ({commit}, id) {
-    return new Promise((resolve, reject) => {
-      http.get(`/api/question/${id}`)
-        .then(({data}) => {
-          // console.log(data)
-          resolve(data.data)
-          // commit('setData', data.data)
-        })
-        .catch(err => console.log(err))
-    })
+    http.get(`/api/question/${id}`)
+      .then(({data}) => {
+        // console.log(data)
+        // resolve(data.data)
+        commit('setDataQuestion', data.data)
+      })
+      .catch(err => console.log(err))
   },
   removeQuest ({commit}, id) {
     http.delete(`/api/question/${id}`, {headers: {'token': localStorage.getItem('token')}})
       .then(data => {
         console.log('sukses')
+      })
+      .catch(() => {
+        alert('you Must Login')
       })
   },
   updateQuest ({commit}, data) {
@@ -133,28 +177,36 @@ const actions = {
           console.log('sukses')
           resolve(data)
         })
-        .catch(err => console.log('ini err', err))
+        .catch((err) => {
+          console.log(err)
+          alert('you Must Login')
+        })
     })
   },
-  postAnswer ({commit}, data) {
+  postAnswer ({commit}, dataAnswer) {
     return new Promise((resolve, reject) => {
-      http.post(`/api/answer/`, data, {headers: {'token': localStorage.getItem('token')}})
+      http.post(`/api/answer/`, dataAnswer, {headers: {'token': localStorage.getItem('token')}})
         .then(({data}) => {
           // console.log(data)
-          resolve(data.data)
-          // commit('setData', data.data)
+          // commit('setAnswerUser', dataAnswer)
+          resolve(data)
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          alert('you Must Login')
+          reject(err)
+        })
     })
   },
   getAnswerByQuestion ({commit}, id) {
     return new Promise((resolve, reject) => {
       http.get(`/api/answer/questions/${id}`)
         .then(({data}) => {
-          console.log(data)
+          commit('setDataAnswer', data)
           resolve(data)
         })
-        .catch(err => alert(err))
+        .catch(err => {
+          alert(err)
+        })
     })
   },
   removeAnswer ({commit}, id) {
@@ -164,6 +216,42 @@ const actions = {
   decode ({commit}) {
     var decoded = jwt(localStorage.getItem('token'))
     commit('setDataUser', decoded)
+  },
+  manipulasiAnswer ({commit}, payload) {
+    commit('setAnswerUser', payload)
+  },
+  voteQuest ({commit}, payload) {
+    let status = state.data_Question.vote.includes(state.dataUser.id.toString())
+    if (!status) {
+      commit('setVote', state.dataUser.id)
+    }
+    else {
+      commit('setDataVote', state.dataUser.id)
+    }
+    http.put(`/api/question/vote/${payload}`, {}, {headers: {'token': localStorage.getItem('token')}})
+      .then(result => {
+        console.log('sukses update')
+        // commit('setDataQuestion', result.data)
+      })
+      .catch(() => {
+        alert('You Must Login')
+      })
+  },
+  voteAnswer ({commit}, payload) {
+    let status = state.data_Question.vote.includes(state.dataUser.id.toString())
+    if (status) {
+      commit('pullVoteAnswer', payload)
+    }
+    else {
+      commit('pushVoteAnswer', payload)
+    }
+    http.put(`/api/answer/vote/${payload}`, {}, {headers: {'token': localStorage.getItem('token')}})
+      .then(data => {
+        console.log('sukses like')
+      })
+      .catch(() => {
+        alert('You Must Login')
+      })
   }
 }
 

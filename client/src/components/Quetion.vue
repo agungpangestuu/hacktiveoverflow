@@ -5,7 +5,7 @@
         <q-list inset-separator>
           <q-item>
             <q-item-side>
-              <q-chip square color="primary" class="shadow-2">10k</q-chip>
+              <q-chip square color="primary" class="shadow-2">{{d.answer.length}}</q-chip>
               <q-item-tile stamp>answer</q-item-tile>
             </q-item-side>
             <q-item-main>
@@ -15,7 +15,7 @@
             <q-item-side right>
               <span class="text-blue">
                 <q-item-tile icon="thumb_up"/>
-                <q-item-tile stamp>10 like</q-item-tile>
+                <q-item-tile stamp>{{d.vote.length}} like</q-item-tile>
               </span>
             </q-item-side>
           </q-item>

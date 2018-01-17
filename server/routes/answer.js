@@ -10,5 +10,6 @@ router.get('/:id', Answer.answerByid)
 router.delete('/:id', Answer.destroyAnswer)
 router.get('/questions/:id', Answer.answersByQuestion)
 router.put('/:id', Answer.updateAnswer)
+router.put('/vote/:id',  Login.isLogin, Answer.voteAnswer)
 
 module.exports = router

@@ -7,12 +7,16 @@
             <div class="col-6">
               {{data_Question.title}}
             </div>
-            <div class="col-6">
-              <q-item-side right icon="thumb_up" v-if="!vote" @click="vote = true"></q-item-side>
-              <q-item-side right icon="thumb_up" color="blue" v-if="vote" @click="vote = false"></q-item-side>
+              <div class="col-6">
+                <q-item-side right icon="thumb_up" v-if="data_Question.vote.includes(dataUser.id) === false" @click="vote">
+                  <q-item-tile stamp>{{data_Question.vote.length}} like</q-item-tile>
+                </q-item-side>
+                <q-item-side right icon="thumb_up" color="blue" v-if="data_Question.vote.includes(this.dataUser.id)> 0" @click="vote">
+                  <q-item-tile stamp>{{data_Question.vote.length}} like</q-item-tile>
+                  <!-- <q-item-tile stamp v-else-if="data_Question.vote.length > 0">{{data_Question.vote.length}} like</q-item-tile> -->
+                </q-item-side>
             </div>
           </div>
-
         </q-card-title>
         <q-card-separator />
         <q-card-main>
@@ -26,6 +30,8 @@
 
         </q-card-main>
         <q-card-actions>
+          <div v-if="dataUser.id">
+
           <q-btn flat @click="$refs.updateQuest.open()" v-if="dataUser.id === data_Question.author._id">Update</q-btn>
           <q-modal ref="updateQuest" :content-css="{minWidth: '80vw', minHeight: '80vh'}">
             <q-modal-layout>
@@ -58,10 +64,11 @@
             </q-modal-layout>
           </q-modal>
           <q-btn flat @click="remove" v-if="dataUser.id === data_Question.author._id">Delete</q-btn>
+        </div>
         </q-card-actions>
       </q-card>
       <br>
-       {{answer.length}} ANSWER
+      <div>{{data_Answer.length}} ANSWER</div>
       <hr>
         <answer-quest></answer-quest>
       <router-view></router-view>
@@ -90,6 +97,7 @@ import {
   QItemMain,
   QItemSide,
   QItem,
+  QItemTile,
   QToolbar,
   QInput,
   QIcon
@@ -115,6 +123,7 @@ export default {
     QItemMain,
     QItemSide,
     QItem,
+    QItemTile,
     QModalLayout,
     QToolbar,
     QInput,
@@ -122,18 +131,18 @@ export default {
   },
   data () {
     return {
-      data_Question: [],
-      data_Answer: [],
       answer: [],
       error: true,
       error2: false,
       loading: true,
-      vote: false
+      statusVote: false
     }
   },
   computed: {
     ...mapState([
-      'dataUser'
+      'dataUser',
+      'data_Answer',
+      'data_Question'
     ]),
     computedClasses () {
       let classes = []
@@ -165,7 +174,8 @@ export default {
       'getAnswerByQuestion',
       'removeQuest',
       'updateQuest',
-      'decode'
+      'decode',
+      'voteQuest'
     ]),
     remove () {
       this.removeQuest(this.$route.params.id)
@@ -174,23 +184,28 @@ export default {
     update () {
       this.updateQuest(this.data_Question)
         .then(data => {
+          this.data_Answer.push(data)
           this.data = data
+          this.$refs.updateQuest.close()
         })
+        .catch(() => {
+          alert('You Must Login')
+        })
+    },
+    vote () {
+      this.voteQuest(this.data_Question._id)
     }
   },
   created () {
     let id = this.$route.params.id
     this.getQuestById(id)
-      .then(data => {
-        this.data_Question = data
-        console.log('ini data cuk', this.data_Question)
-      })
     this.getAnswerByQuestion(id)
       .then(data => {
         this.answer = data
       })
-    this.decode()
-    console.log('sasa',this.dataUser)
+    if (localStorage.getItem('token')) {
+      this.decode()
+    }
   }
 }
 </script>

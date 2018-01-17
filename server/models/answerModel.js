@@ -19,6 +19,10 @@ const answerSchema = new Schema({
     type : Date,
     default : Date.now
   },
+  vote : [{
+    type : Schema.Types.ObjectId,
+    ref : 'Users'
+  }]
 })
 
 const answerModels = mongoose.model('answers', answerSchema)

@@ -47,26 +47,41 @@ export default {
   },
   computed: {
     ...mapState([
-      'formCreate'
+      'formCreate',
+      'data_Answer',
+      'dataUser'
     ])
   },
   methods: {
     ...mapActions([
       'SignUp',
       'clearSign',
-      'postAnswer'
+      'postAnswer',
+      'decode',
+      'manipulasiAnswer'
     ]),
     createBtn () {
+      this.decode()
       let data = {
         question: this.$route.params.id,
-        answer_content: this.answer
+        answer_content: this.answer,
+        by: {
+          username: this.dataUser.username
+        }
       }
       this.postAnswer(data)
-        .then(data => {
-          console.log(data)
-          this.$router.push('/')
+        .then(result => {
+          result.by = {
+            username: this.dataUser.username.toString()
+          }
+          this.manipulasiAnswer(result)
+          this.answer = ''
+          // this.$router.push('/')
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          console.err(err)
+          alert('you Must Login')
+        })
     }
   }
 }

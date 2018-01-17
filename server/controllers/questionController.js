@@ -86,7 +86,35 @@ const destroyQuestions = function(req,res){
   })
 }
 const voteQuestion = function(req,res){
-
+  let id = {
+    _id: req.params.id
+  }
+  Questions.findOne(id).then(function (data) {
+    let status = false
+    data.vote.forEach(result => {
+      if(result == req.decoded.id){
+        status = true
+        Questions.findByIdAndUpdate(id,{$pull: {vote: req.decoded.id}})
+        .then(dataUpdate => {
+          res.status(200).send(dataUpdate)
+        })
+        .catch(err => {
+          res.send(err)
+          console.log(err)
+        })
+      }
+    })
+    if(!status){
+      Questions.findByIdAndUpdate(id,{$push: {vote: req.decoded.id}})
+        .then(dataUpdate => {
+          res.status(200).send(dataUpdate)
+        })
+        .catch(err => {
+          res.send(err)
+          console.log(err)
+        })
+    }
+  })
 }
 
 module.exports = {
@@ -95,5 +123,6 @@ module.exports = {
   questionsByid,
   questionsByAuthorid,
   updateQuestion,
-  destroyQuestions
+  destroyQuestions,
+  voteQuestion
 }

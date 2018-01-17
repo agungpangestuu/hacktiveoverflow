@@ -14,10 +14,10 @@
         Hacktiv Overflow
         <span slot="subtitle">Empowering your app</span>
       </q-toolbar-title>
-      <!-- <q-btn class="within-iframe-hide" flat @click="$router.replace('/showcase')" style="margin-right: 15px">
-        <q-icon name="keyboard_arrow_left" />
-        Go back
-      </q-btn> -->
+      <q-btn class="within-iframe-hide" flat @click="$router.push('/signup')" style="margin-right: 15px" v-if="!isLogin">
+        <q-icon name="account_circle" />
+        Sigup
+      </q-btn>
       <q-btn class="within-iframe-hide" flat @click="$refs.layoutModal.open()" style="margin-right: 15px" v-if="!isLogin">
         <q-icon name="account_circle" color="primary" />
         Login
@@ -33,7 +33,35 @@
             </div>
           </q-toolbar>
           <div class="layout-padding">
-            <form-login />
+            <div class="layout-padding docs-input row justify-center">
+              <div style="width: 500px; max-width: 90vw;">
+                <big class="caption">Sign In</big>
+                <q-field
+                  icon="account_circle"
+                  label="Account"
+                  :error="error2"
+                  helper="What's your account name?"
+                  error-label="Hey, we got an error"
+                >
+                  <q-input v-model="login.username" type="email"/>
+                </q-field>
+                <q-field
+                  icon="lock_outline"
+                  label="Password"
+                  :error="error2"
+                  helper="Some helper"
+                  error-label="Wait, wait. Error!"
+                >
+                  <q-input v-model="login.password" type="password"/>
+                </q-field>
+                  <q-btn color="primary" @click="showTextLoading()">
+                    Sign In
+                  </q-btn>
+                <q-inner-loading :visible="visible">
+                    <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
+                </q-inner-loading>
+              </div>
+            </div>
           </div>
         </q-modal-layout>
       </q-modal>
@@ -52,7 +80,7 @@
 
     <q-scroll-area slot="left" style="width: 100%; height: 100%">
       <q-list-header>Menu</q-list-header>
-      <q-side-link item to="/question">
+      <q-side-link item to="/">
         <q-item-side icon="account circle" />
         <q-item-main label="Question" sublabel="Learn more about it" />
       </q-side-link>
@@ -92,14 +120,20 @@ import {
   QSideLink,
   QListHeader,
   QScrollArea,
+  QSpinnerGears,
   QModal,
-  QModalLayout
+  QModalLayout,
+  QInnerLoading,
+  QTransition,
+  QInput,
+  QToggle,
+  QField,
+  QTooltip,
+  QPopover
 } from 'quasar'
-import FormLogin from './FormLogin'
 import { mapState, mapActions } from 'vuex'
 export default {
   components: {
-    FormLogin,
     QLayout,
     QToolbar,
     QToolbarTitle,
@@ -113,8 +147,16 @@ export default {
     QSideLink,
     QListHeader,
     QScrollArea,
+    QSpinnerGears,
     QModal,
-    QModalLayout
+    QModalLayout,
+    QInnerLoading,
+    QTransition,
+    QInput,
+    QToggle,
+    QField,
+    QTooltip,
+    QPopover
   },
   data () {
     return {
@@ -127,7 +169,12 @@ export default {
         rightBreakpoint: 1200,
         hideTabs: false
       },
-      search: ''
+      search: '',
+      error: true,
+      error2: false,
+      loading: true,
+      visible: false,
+      showSimulatedReturnData: false
     }
   },
   updated () {
@@ -136,15 +183,60 @@ export default {
   computed: {
     ...mapState([
       'isLogin',
-      'data'
+      'data',
+      'login'
     ])
   },
   methods: {
     ...mapActions([
       'checkLogin',
       'logout',
-      'getAllQuestion'
-    ])
+      'getAllQuestion',
+      'signIn'
+    ]),
+    simulateProgress (event, done) {
+      // simulate a delay, like in
+      // waiting for an Ajax call
+      setTimeout(() => {
+        // delay is over, now we call
+        // done() function to inform button
+        // it must go to its initial state
+        done()
+        // DON't forget to call done() otherwise
+        // the button will keep on being in
+        // "loading" state
+      }, 3000)
+    },
+    getEmit (params) {
+      console.log(params)
+      if (params) {
+        this.error2 = this.error
+      }
+    },
+    showTextLoading () {
+      this.show()
+    },
+    show () {
+      this.visible = true
+      this.showSimulatedReturnData = false
+      setTimeout(() => {
+        this.visible = false
+        this.showSimulatedReturnData = true
+        // console.log(this.data)
+        this.signIn()
+          .then(data => {
+            localStorage.setItem('token', data.token)
+            // this.getLogin()
+            this.$refs.layoutModal.close()
+
+            this.$router.push('/')
+          })
+          .catch(err => {
+            this.$emit('err', true)
+            console.log(err)
+          })
+      }, 3000)
+    }
   },
   watch: {
     isLogin: function () {
@@ -152,13 +244,14 @@ export default {
     }
   },
   mounted () {
+    console.log('test')
     this.$refs.layout.hideLeft()
   },
   created () {
     this.getAllQuestion()
     this.checkLogin()
     if (!this.isLogin) {
-      this.$router.push('/question')
+      this.$router.push('/')
     }
   }
 }
@@ -170,4 +263,6 @@ export default {
   .q-tabs-inverted
     color: #027be3
     background: white
+  p.signup
+    margin-top: 20px
 </style>

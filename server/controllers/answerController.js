@@ -1,5 +1,6 @@
 const ObjectId = require('mongodb').ObjectId
 const Answer = require('../models/answerModel')
+const Question = require('../models/questionModel')
 
 const createAnswer = function(req,res){
   console.log(req.body)
@@ -9,7 +10,10 @@ const createAnswer = function(req,res){
     by: req.decoded.id
   })
   newAnswer.save().then(function(newAnswer){
-    res.status(201).send(newAnswer)
+    Question.findByIdAndUpdate({_id: req.body.question},{$push: {answer: newAnswer._id}})
+    .then(data => {
+      res.status(201).send(newAnswer)
+    })
   }).catch(function(err){
     res.status(500).send(err)
     console.log(err, '[-] create Answer')
@@ -62,11 +66,18 @@ const destroyAnswer = function(req,res){
     _id : ObjectId(req.params.id)
   }
   console.log('delete answer', id)
-  Answer.findByIdAndRemove(id).then(function(){
-    res.status(200).send(`[-] deleted 1 Answer`)
-  }).catch(function(err){
-    res.status(500).send(`[-] err delete by id Answer`)
+  Answer.findOne(id)
+  .then(answer => {
+    Answer.findByIdAndRemove(id).then(function(){
+      Question.findByIdAndUpdate({_id: answer.question},{$pull: {answer: answer._id}})
+      .then(() => {
+        res.status(200).send(`[-] deleted 1 Answer`)
+      })
+    }).catch(function(err){
+      res.status(500).send(`[-] err delete by id Answer`)
+    })
   })
+  .catch(err => console.log(err))
 }
 
 const answersByQuestion = function(req,res){
@@ -82,11 +93,45 @@ const answersByQuestion = function(req,res){
   })
 }
 
+const voteAnswer = function (req, res) {
+  let id = {
+    _id: req.params.id
+  }
+  Answer.findOne(id).then(function (data) {
+    let status = false
+    data.vote.forEach(result => {
+      if(result == req.decoded.id){
+        status = true
+        Answer.findByIdAndUpdate(id,{$pull: {vote: req.decoded.id}})
+        .then(dataUpdate => {
+          res.status(200).send(dataUpdate)
+        })
+        .catch(err => {
+          res.send(err)
+          console.log(err)
+        })
+      }
+    })
+    if(!status){
+      Answer.findByIdAndUpdate(id,{$push: {vote: req.decoded.id}})
+        .then(dataUpdate => {
+          res.status(200).send(dataUpdate)
+        })
+        .catch(err => {
+          res.send(err)
+          console.log(err)
+        })
+    }
+  })
+}
+
+
 module.exports = {
   createAnswer,
   findAllAnswer,
   answerByid,
   updateAnswer,
   destroyAnswer,
-  answersByQuestion
+  answersByQuestion,
+  voteAnswer
 }

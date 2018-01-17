@@ -37,7 +37,7 @@ export default new VueRouter({
       component: load('Hello'),
       children: [
         {
-          path: '/question',
+          path: '',
           component: load('Quetion')
         },
         {
@@ -52,6 +52,7 @@ export default new VueRouter({
         },
         {
           path: '/signup',
+          name: 'SignUp',
           component: load('FormSignup')
         }
       ]
