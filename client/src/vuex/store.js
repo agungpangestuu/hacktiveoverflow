@@ -95,14 +95,11 @@ const actions = {
         .catch(err => reject(err))
     })
   },
-  clearSign ({commit}) {
-    let data = {
-      fullname: '',
-      email: '',
-      password: '',
-      username: ''
-    }
-    commit('clearSign', data)
+  clearSign ({commit, state}) {
+    state.signUp.fullname = ''
+    state.signUp.email = ''
+    state.signUp.password = ''
+    state.signUp.username = ''
   },
   signIn ({commit}) {
     return new Promise((resolve, reject) => {
@@ -130,6 +127,7 @@ const actions = {
   },
   logout ({commit}) {
     localStorage.clear()
+    window.location.reload()
     commit('isLogin', false)
   },
   askCreate () {

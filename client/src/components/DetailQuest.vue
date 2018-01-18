@@ -135,7 +135,8 @@ export default {
       error: true,
       error2: false,
       loading: true,
-      statusVote: false
+      statusVote: false,
+      statusLogin: false
     }
   },
   computed: {
@@ -168,6 +169,16 @@ export default {
     }
 
   },
+  updated () {
+    this.$nextTick(function () {
+      this.loginState()
+    })
+  },
+  watch: {
+    isLogin: function (newLogin) {
+      this.statusLogin = newLogin
+    }
+  },
   methods: {
     ...mapActions([
       'getQuestById',
@@ -175,7 +186,8 @@ export default {
       'removeQuest',
       'updateQuest',
       'decode',
-      'voteQuest'
+      'voteQuest',
+      'checkLogin'
     ]),
     remove () {
       this.removeQuest(this.$route.params.id)
@@ -194,9 +206,14 @@ export default {
     },
     vote () {
       this.voteQuest(this.data_Question._id)
+    },
+    loginState () {
+      this.checkLogin()
     }
   },
   created () {
+    this.checkLogin()
+    this.statusLogin = this.isLogin
     let id = this.$route.params.id
     this.getQuestById(id)
     this.getAnswerByQuestion(id)
